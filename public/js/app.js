@@ -2,6 +2,45 @@
  * App Main Entry & Routing Logic
  */
 
+const ensureAppDependencies = async () => {
+    const requiredRenderers = [
+        'renderDashboard',
+        'renderAssetList',
+        'renderTickets',
+        'renderLicenses',
+        'renderReports',
+        'renderProcurement',
+        'renderSettings'
+    ];
+
+    await new Promise((resolve, reject) => {
+        let attempts = 0;
+
+        const checkReady = () => {
+            const storeReady = window.appStore
+                && typeof window.appStore.init === 'function'
+                && typeof window.appStore.subscribe === 'function';
+
+            const renderersReady = requiredRenderers.every((rendererName) => typeof window[rendererName] === 'function');
+
+            if (storeReady && renderersReady) {
+                resolve();
+                return;
+            }
+
+            attempts += 1;
+            if (attempts > 100) {
+                reject(new Error('Required app scripts did not finish loading in time.'));
+                return;
+            }
+
+            window.setTimeout(checkReady, 100);
+        };
+
+        checkReady();
+    });
+};
+
 const bootApp = () => {
     // DOM Elements
     const viewContainer = document.getElementById('view-container');
@@ -102,6 +141,20 @@ const bootApp = () => {
 
     // Init Logic
     const init = async () => {
+        try {
+            await ensureAppDependencies();
+        } catch (error) {
+            console.error('App dependency loading error:', error);
+            viewContainer.innerHTML = `
+                <div class="animate-fade-in empty-state glass-panel">
+                    <i class="ph ph-warning-circle"></i>
+                    <h2>App scripts not ready</h2>
+                    <p style="margin-top: 1rem;">Please refresh the page. If the issue continues, check browser network/CDN access.</p>
+                </div>
+            `;
+            return;
+        }
+
         const loaded = await window.appStore.init();
         if (!loaded) {
             viewContainer.innerHTML = `
