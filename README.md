@@ -1,36 +1,69 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# NexusAssets
 
-## Getting Started
+NexusAssets is a Supabase-backed IT asset management dashboard for tracking hardware, assignments, support tickets, software licenses, vendors, and purchase orders.
 
-First, run the development server:
+## Core features
+
+- Asset inventory with search, categories, status labels, cost, serial, and assignment details.
+- Asset handover workflow for employee, department, location, and date tracking.
+- Support-ticket and software-license records linked to managed assets.
+- Vendor and purchase-order management.
+- Dashboard summaries, reports, settings, and data refresh controls.
+- Browser-side CRUD operations persisted to Supabase.
+
+## Technology stack
+
+- Next.js 16, React 19, and TypeScript
+- Tailwind CSS 4
+- Supabase JavaScript client loaded in the browser
+- Flatpickr and Phosphor Icons loaded from public CDNs
+- Modular browser JavaScript under `public/js/`
+
+## Prerequisites
+
+- Node.js and npm
+- A Supabase project with suitable tables and Row Level Security policies
+- Network access to the configured CDNs
+
+## Local setup
+
+```bash
+git clone https://github.com/varunisrani/asset-man.git
+cd asset-man
+npm ci
+```
+
+Create `.env.local` using the names below, then run:
 
 ```bash
 npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+The default development URL is `http://localhost:3000`.
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+Production and lint commands:
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+```bash
+npm run build
+npm run start
+npm run lint
+```
 
-## Learn More
+## Configuration
 
-To learn more about Next.js, take a look at the following resources:
+| Name | Required | Purpose |
+| --- | --- | --- |
+| `NEXT_PUBLIC_SUPABASE_URL` | Yes | Supabase project URL exposed to the browser client. |
+| `NEXT_PUBLIC_SUPABASE_PUBLISHABLE_DEFAULT_KEY` | Yes | Browser-safe Supabase publishable key. |
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+## Project structure
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+- `app/page.tsx` — application shell, forms, and client configuration injection.
+- `app/globals.css` — dashboard styling.
+- `public/js/store.js` — Supabase data access and record mapping.
+- `public/js/app.js` — navigation and form orchestration.
+- `public/js/components/` — dashboard, assets, tickets, licenses, procurement, reports, and settings views.
 
-## Deploy on Vercel
+## Status and limitations
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
-
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+The repository does not include Supabase schema migrations or seed data. The client expects `assets`, `support_tickets`, `software_licenses`, `vendors`, `purchase_orders`, `asset_categories`, `asset_status_labels`, and `workspace_users` tables with compatible columns. Because writes happen from a public browser client, production safety depends on correctly scoped Supabase Row Level Security policies. No automated test script is defined.
